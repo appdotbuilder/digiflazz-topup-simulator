@@ -1,8 +1,19 @@
+import { db } from '../db';
+import { serviceCategoriesTable } from '../db/schema';
 import { type ServiceCategory } from '../schema';
+import { eq } from 'drizzle-orm';
 
-export async function getServiceCategories(): Promise<ServiceCategory[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all active service categories from the database.
-    // Categories represent different types of services (e.g., Mobile, Internet, Electricity, etc.)
-    return Promise.resolve([]);
-}
+export const getServiceCategories = async (): Promise<ServiceCategory[]> => {
+  try {
+    // Fetch all active service categories from the database
+    const results = await db.select()
+      .from(serviceCategoriesTable)
+      .where(eq(serviceCategoriesTable.is_active, true))
+      .execute();
+
+    return results;
+  } catch (error) {
+    console.error('Failed to fetch service categories:', error);
+    throw error;
+  }
+};

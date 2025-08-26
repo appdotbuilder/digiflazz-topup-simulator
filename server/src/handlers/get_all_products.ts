@@ -1,9 +1,23 @@
+import { db } from '../db';
+import { serviceProductsTable } from '../db/schema';
 import { type ServiceProduct } from '../schema';
+import { eq } from 'drizzle-orm';
 
-export async function getAllProducts(): Promise<ServiceProduct[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all active service products from the database.
-    // This simulates the complete product catalog from Digiflazz API.
-    // Real implementation should periodically sync with Digiflazz to keep products updated.
-    return Promise.resolve([]);
-}
+export const getAllProducts = async (): Promise<ServiceProduct[]> => {
+  try {
+    // Fetch all active service products
+    const results = await db.select()
+      .from(serviceProductsTable)
+      .where(eq(serviceProductsTable.is_active, true))
+      .execute();
+
+    // Convert numeric fields back to numbers before returning
+    return results.map(product => ({
+      ...product,
+      price: parseFloat(product.price) // Convert string back to number
+    }));
+  } catch (error) {
+    console.error('Get all products failed:', error);
+    throw error;
+  }
+};
